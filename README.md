@@ -131,3 +131,10 @@ Maka dari itu, fungsi `handle_connection` yang telah dimodifikasi ini menanggapi
 4. Terakhir, pada konkurensi dan Komunikasi ini, `Arc<Mutex<mpsc::Receiver<Job>>>`dibagikan di antara semua thread *worker*. Ini memungkinkan beberapa thread untuk mengakses ujung penerima channel dengan aman. Channel `mpsc` (*multi-producer, single-consumer*)  memungkinkan pengiriman *job* secara bersamaan dan aman antara thread *worker*.
 
 Jadi, *thread pool* mengelola sejumlah tetap utas *worker*. *Job* diserahkan ke pool dan dieksekusi secara bersamaan oleh thread *worker*, memberikan mekanisme sederhana untuk eksekusi tugas secara paralel.
+
+## COMMIT 6 [BONUS]
+1. Pada link buku yang sudah disediakan sebelumnya, disarankan untuk menggunakan metode `build` daripada `new` saat memulai `ThreadPool`. Ini disebabkan oleh keyakinan bahwa `new` mungkin menghasilkan kesalahan jika jumlah thread yang diberikan terlalu kecil.
+2. Tapi tetap tidak terbukti benar karena metode `new` harapannya itu berhasil. Maka, akan lebih efisien untuk memakai metode `new` dengan `build` yang mengembalikan `Result`.
+3. Dengan memakai metode `build`, ketika nilai dikembalikan kepada pemanggil, nilai tersebut dapat di-**unwrapped* untuk mendapatkan hasil eksekusi tanpa menghadapi risiko kesalahan.
+
+Jadi, walau terdapat rekomendasi untuk menggunakan `build`, namun metode `new` mempunyai harapan keberhasilan yang tinggi. Oleh karena itu, pemilihan metode harus disesuaikan dengan kebutuhan dan preferensi *developer*.
