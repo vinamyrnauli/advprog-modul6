@@ -120,4 +120,14 @@ Maka dari itu, fungsi `handle_connection` yang telah dimodifikasi ini menanggapi
 8. Tanggapan HTTP dibangun dengan informasi yang diperlukan.
 9. Akhirnya, tanggapan dikirim kembali ke klien melalui aliran TCP. Hal ini dapat memperluas fungsi server untuk menangani permintaan khusus di mana server akan tidur sejenak sebelum memberikan respons jika permintaan adalah `GET /sleep HTTP/1.1`. Selain itu, server tetap melayani permintaan untuk `hello.html` atau memberikan tanggapan 404 jika sumber daya tidak ditemukan.
 
+## COMMIT 5
+1. Saat `ThreadPool initialization (ThreadPool::new)`, kita memulai *thread pool* dengan ukuran tertentu untuk menentukan jumlah thread pekerja, membuat channel `(mpsc::channel)` untuk komunikasi antara utas utama dan pekerja, serta membuat vektor untuk menyimpan thread *worker*. Selain itu, setiap thread *worker* memiliki struktur *Worker* yang menerima pekerjaan melalui channel.
 
+2. Pada `Worker creation (Worker::new)`, setiap thread pekerja memiliki loop tak terbatas yang menunggu pekerjaan.Saat pekerjaan diterima, thread pekerja akan mengeksekusinya.
+
+3. Selain itu, pada `Job Execution (ThreadPool::execute)`, thread utama mengirimkan *job* ke salah satu thread *worker* melalui channel.
+   *Job* kemudian dieksekusi oleh thread *worker*.
+
+4. Terakhir, pada konkurensi dan Komunikasi ini, `Arc<Mutex<mpsc::Receiver<Job>>>`dibagikan di antara semua thread *worker*. Ini memungkinkan beberapa thread untuk mengakses ujung penerima channel dengan aman. Channel `mpsc` (*multi-producer, single-consumer*)  memungkinkan pengiriman *job* secara bersamaan dan aman antara thread *worker*.
+
+Jadi, *thread pool* mengelola sejumlah tetap utas *worker*. *Job* diserahkan ke pool dan dieksekusi secara bersamaan oleh thread *worker*, memberikan mekanisme sederhana untuk eksekusi tugas secara paralel.
